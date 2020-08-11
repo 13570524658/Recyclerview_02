@@ -11,24 +11,32 @@ import com.example.recyclerview_02.R
 import com.example.recyclerview_02.bean.Data
 
 
-class RecyclerViewAdapter(private var mDataList: ArrayList<Data>?, private var mContext: Context) :
-    RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder>() {
+class RecyclerViewAdapter() : RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder>() {
     //一个小知识点,当列表为空时赋值0
-    private var mSize = mDataList?.size ?: 0
+    private var mDataList: ArrayList<Data>? = ArrayList()
     private var isCheckList: ArrayList<IsCheck>? = ArrayList()
+    private lateinit var mContext: Context
+
+    constructor(dataList: ArrayList<Data>?,conetxt:Context) : this() {
+        mContext=conetxt
+        mDataList=dataList
+        isCheckList?.clear()
+        for (i in 1..mDataList?.size!!) {
+            val check = IsCheck()
+            check.check = i == 0
+            isCheckList?.add(check)
+        }
+    }
+
+
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.rv_adapter_item, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.rv_adapter_item, parent, false)
         return MyViewHolder.onCreateViewHolder(view as ViewGroup, viewType)
     }
 
     override fun getItemCount(): Int {
-        for (i in 0..mSize) {
-            val check = IsCheck()
-            check.check = i==0
-            isCheckList?.add(check)
-        }
-        return mSize
+        return mDataList?.size!!
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
@@ -38,31 +46,50 @@ class RecyclerViewAdapter(private var mDataList: ArrayList<Data>?, private var m
             mDataList?.get(position)?.message
         holder.itemView.findViewById<TextView>(R.id.tv_data).text =
             mDataList?.get(position)?.data.toString()
-        if (isCheckList?.get(position)?.check!!) {
-            setTureCheck(position)
-            holder.itemView.setBackgroundColor(Color.parseColor("#03DAC5"))
-        }
-        holder.itemView.setOnClickListener {
-            if (!isCheckList?.get(position)?.check!!) {
-                setTureCheck(position)
+        if (isCheckList != null && isCheckList!!.size > 0) {
+            if (isCheckList?.get(position)?.check==true) {
                 holder.itemView.setBackgroundColor(Color.parseColor("#03DAC5"))
             } else {
-                setFalseCheck(position)
                 holder.itemView.setBackgroundColor(Color.parseColor("#FFFFFF"))
             }
         }
+
+        holder.itemView.setOnClickListener {
+            if (isCheckList != null && isCheckList!!.size > 0) {
+                if (isCheckList?.get(position)?.check!!) {
+                    setTureCheck(position)
+                    holder.itemView.setBackgroundColor(Color.parseColor("#03DAC5"))
+                } else {
+                    setTureCheck(position)
+                    holder.itemView.setBackgroundColor(Color.parseColor("#03DAC5"))
+                }
+            }
+            notifyDataSetChanged()
+        }
     }
 
-    private fun setTureCheck(position:Int) {
+    private fun setTureCheck(position: Int) {
+        isCheckList?.clear()
+        for (i in 1..mDataList?.size!!) {
+            val check = IsCheck()
+            check.check = i == 0
+            isCheckList?.add(check)
+        }
         val check = IsCheck()
-        check.check = true
-        isCheckList?.set(position, check)
+        check.check = true;
+        isCheckList?.set(position, check);
     }
 
-    private fun setFalseCheck(position:Int) {
+    private fun setFalseCheck(position: Int) {
+        isCheckList?.clear()
+        for (i in 1..mDataList?.size!!) {
+            val check = IsCheck()
+            check.check = i == 0
+            isCheckList?.add(check)
+        }
         val check = IsCheck()
-        check.check = false
-        isCheckList?.set(position, check)
+        check.check = false;
+        isCheckList?.set(position, check);
     }
 
     class MyViewHolder(itemViews: View) : RecyclerView.ViewHolder(itemViews) {
